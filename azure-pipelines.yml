@@ -1,0 +1,21 @@
+
+
+variables:
+  Major: '0'
+  Minor: '2'
+  Patch: $[counter(variables['Minor'], 1)]
+  versionApp: '$(Major).$(Minor).$(Patch)'
+
+steps:
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'pack'
+    packagesToPack: '**/*.csproj'
+    versioningScheme: 'byEnvVar'
+    versionEnvVar: 'versionApp'
+
+- task: DotNetCoreCLI@2
+  inputs:
+    command: 'push'
+    packagesToPush: '$(Build.ArtifactStagingDirectory)/*.nupkg'
+    publishVstsFeed: '040365dd-578b-427c-98a0-d04c881cfc7e'
