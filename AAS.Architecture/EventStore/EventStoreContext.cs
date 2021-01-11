@@ -16,23 +16,12 @@ namespace AAS.Architecture.EventStore
 
         public IStoreEvents Events => WireupEventStore(this.connectionString);
         
-        private IStoreEvents WireupEventStore(string connectionString)
-        {
-            var type = typeof(ISyncDomainEvent);
-            var types = Assembly.GetAssembly(type)
-                .GetTypes()
-                .Where(t => type.IsAssignableFrom(t))
-                .Where(t => t.IsClass);
-
-            foreach (var t in types)
-                BsonClassMap.LookupClassMap(t); 
-            
-            return Wireup.Init()
+        private IStoreEvents WireupEventStore(string connectionString) =>
+            Wireup.Init()
                 .UsingAppMongoPersistence(connectionString, new DocumentObjectSerializer())
                 .InitializeStorageEngine()
                 .UsingBsonSerialization()
                 .Compress()
                 .Build();
-        }
     }
 }
