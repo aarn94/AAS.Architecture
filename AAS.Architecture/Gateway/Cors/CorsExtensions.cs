@@ -18,6 +18,7 @@ namespace AAS.Architecture.Gateway.Cors
                     builder =>
                     {
                         builder
+                            .AllowCredentials()
                             .WithOrigins(webOptions.Domains)
                             .WithMethods(webOptions.Methods)
                             .WithExposedHeaders(webOptions.ExposedHeaders)
