@@ -28,8 +28,26 @@ namespace AAS.Architecture.Gateway.Cors
 
             return builder;
         }
+        
+        public static IConveyBuilder AddUnsecuredCors(this IConveyBuilder builder, string corsName = "AllowAnyPolicy", string corsSectionName = "cors")
+                {
+                    builder.Services.AddCors(options =>
+                    {
+                        options.AddPolicy(corsName,
+                            builder =>
+                            {
+                                builder
+                                    .AllowCredentials()
+                                    .AllowAnyOrigin()
+                                    .AllowAnyHeader()
+                                    .AllowAnyMethod();
+                            });
+                    });
+        
+                    return builder;
+                }
 
-        public static IApplicationBuilder UseWebCors(this IApplicationBuilder builder, string corsName = "AllowAll") => builder.UseCors(corsName);
+        public static IApplicationBuilder UseUnsecuredCors(this IApplicationBuilder builder, string corsName = "AllowAnyPolicy") => builder.UseCors(corsName);
         
         public static IApplicationBuilder UseSecuredCors(this IApplicationBuilder builder, string corsName = "SecurityPolicy") => builder.UseCors(corsName);
     }
