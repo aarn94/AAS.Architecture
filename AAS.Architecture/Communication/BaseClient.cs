@@ -33,14 +33,13 @@ namespace AAS.Architecture.Communication
             this.options = options;
         }
 
-        protected async Task<T> GetJsonAsync<T>(string uri, bool allowNull = false) where T : class
+        protected async Task<T> GetJsonAsync<T>(string uri, bool allowNull = false, bool relayHeaders = true) where T : class
         {
-            await SetCorrelationContextAsync().WithoutCapturingContext();
+            if(relayHeaders)
+                await SetCorrelationContextAsync().WithoutCapturingContext();
 
             if (allowNull)
-            {
                 return await Client.GetAsync<T>(uri).WithoutCapturingContext();
-            }
 
             return await Policy.Handle<ExternalException>()
                 .WaitAndRetryAsync(retryCount:options.Retries, sleepDurationProvider:(errorNumber) => TimeSpan.FromMilliseconds(1000 * errorNumber))
@@ -55,10 +54,11 @@ namespace AAS.Architecture.Communication
             
         }
 
-        protected async Task<OperationResult> SendJsonRequestAsync<T>(HttpMethod method,[NotNull] string uri,[NotNull] T request, bool save = true) where T: class
+        protected async Task<OperationResult> SendJsonRequestAsync<T>(HttpMethod method,[NotNull] string uri,[NotNull] T request, bool save = true, bool relayHeaders = true) where T: class
         {
             Guard.NotNullOrWhitespace(uri, nameof(uri));
-            await SetCorrelationContextAsync().WithoutCapturingContext();
+            if(relayHeaders)
+                await SetCorrelationContextAsync().WithoutCapturingContext();
             
             var result = await SendRequest().WithoutCapturingContext();
             if (!result.IsSuccessStatusCode)
